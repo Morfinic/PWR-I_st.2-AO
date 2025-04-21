@@ -1,3 +1,4 @@
+import copy
 import random
 import numpy as np
 
@@ -38,7 +39,7 @@ class VRP:
 
         return solutions
 
-    def _calculate_route_distance(self, solutions) -> float:
+    def _calculate_total_route_distance(self, solutions) -> float:
         total_distance = 0
 
         for route in solutions:
@@ -60,5 +61,12 @@ class VRP:
     def _update_route(self, solutions):
         pass
 
-    def tabu_search(self):
-        pass
+    def tabu_search(self, max_iter):
+        current_solution = self._init_solution()
+        current_cost = self._calculate_total_route_distance(current_solution)
+
+        best_sol = copy.deepcopy(current_solution)
+        best_cost = current_cost
+
+        for _ in range(max_iter):
+            pass
