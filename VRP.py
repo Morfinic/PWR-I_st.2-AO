@@ -66,7 +66,9 @@ class VRP:
     def _update_route(self, solutions):
         possible_moves = ["swap_client_order"]
         if self.num_vehicles > 1:
-            possible_moves += ["swap_between_couriers", "change_courier"]
+            possible_moves += ["swap_between_couriers"]
+            # Chwilowo wyjete
+            # , "change_courier"
         move_type = random.choice(possible_moves)
         move = None
 
@@ -136,7 +138,7 @@ class VRP:
             best_change_cost = float('inf')
             best_move = None
 
-            for _ in range(10):
+            for _ in range(50):
                 new_sol, move = self._update_route(current_solution)
                 new_cost = self._calculate_total_route_distance(new_sol)
 
