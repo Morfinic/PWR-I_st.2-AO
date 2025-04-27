@@ -56,13 +56,11 @@ class VRP:
             # Last client to depot
             total_distance += self._calculate_distance(self.locations[route[-1]], self.locations[0])
 
-        # return total_distance
-
         # Test kary za nierówne rozłożenie klientów
         # Nie wiem niby działa, ale czy to nie forcuje że nigdy nie przerzuci klienta na inny pojazd?
         # Można usunąć karę i wywalić przerzucanie na inną trasę i wyjdzie to samo
         clients_per_vehicle = self.num_clients / self.num_vehicles
-        penalty = sum(abs(len(route) - clients_per_vehicle) for route in solutions) * 60
+        penalty = sum(abs(len(route) - clients_per_vehicle) for route in solutions) * 0
         return total_distance + penalty
 
     def _update_route(self, solutions):
@@ -119,10 +117,10 @@ class VRP:
 
         # Plaster na kod żeby nie zrzucał wszystko na jeden pojazd
         # Nie działa, poprostu zostawi minimum jeden na każdym pojeździe
-        if self.num_vehicles > 1:
-            for route in new_sol:
-                if len(route) == 0:
-                    return self._update_route(solutions)
+        # if self.num_vehicles > 1:
+        #     for route in new_sol:
+        #         if len(route) == 0:
+        #             return self._update_route(solutions)
 
         return new_sol, move
 

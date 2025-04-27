@@ -2,6 +2,7 @@ import json
 import os
 from matplotlib import pyplot as plt
 from VRP import VRP
+import xml.etree.ElementTree as ET
 
 # Losowe kolory, żeby wykres był ładny i jako tako czytelny
 colors = [
@@ -23,42 +24,61 @@ colors = [
 ]
 
 for file in os.listdir("./data"):
-    with open("./data/" + file) as f:
-        json_file = json.load(f)
+    dataset = {
+        "data": [],
+        "num_of_vehicles": 0
+    }
 
-        num_veh = 3
-        vrp_problem: VRP = VRP(
-            json_file["data"],
-            num_veh,
-            5
-        )
+    if file.endswith(".json"):
+        with open("./data/" + file) as f:
+            json_file = json.load(f)
+        dataset["data"] = json_file["data"]
+        dataset["num_of_vehicles"] = json_file["num_of_vehicles"]
 
-        best_sol, best_cost = vrp_problem.tabu_search(1500)
+    elif file.endswith(".xml"):
+        tree = ET.parse("./data/" + file)
+        root = tree.getroot()
 
-        print(best_sol)
-        print(best_cost)
+        for node in root.findall("network/nodes/node"):
+            dataset["data"].append([
+                node.find("cx").text,
+                node.find("cy").text
+            ])
 
-        # Scatter plot na pokazanie punktów
-        # annotate aby pokazać trasę pomiędzy punktami
+    vrp_problem: VRP = VRP(
+        dataset["data"],
+        dataset["num_of_vehicles"],
+        5
+    )
 
-        # Depot
-        plt.scatter(*json_file["data"][0], color="red", s=200)
-        # Klienci
-        plt.scatter(*zip(*json_file["data"][1:]), s=200)
+    best_sol, best_cost = vrp_problem.tabu_search(1000)
 
-        for txt, coords in enumerate(json_file["data"]):
-            plt.text(*coords, txt, ha="center", va="center", color="white")
+    print(best_sol)
+    print(best_cost)
 
-        for i in range(len(best_sol)):
-            color = colors[i]
-            for j in range(len(best_sol[i]) - 1):
-                plt.annotate(
-                    "", xytext=json_file["data"][best_sol[i][j]], xy=json_file["data"][best_sol[i][j + 1]],
-                    arrowprops=dict(arrowstyle="->,head_length=1,head_width=0.5", color=color)
-                )
-        # plt.annotate(
-        #     "", xytext=json_file["data"][0], xy=json_file["data"][1],
-        #     arrowprops=dict(arrowstyle="->", color="red")
-        # )
+    # Scatter plot na pokazanie punktów
+    # annotate aby pokazać trasę pomiędzy punktami
 
-        plt.show()
+    # Depot
+    plt.scatter(*dataset["data"][0], color="red", s=200)
+    # Klienci
+    plt.scatter(*zip(*dataset["data"][1:]), s=200)
+
+    for txt, coords in enumerate(dataset["data"]):
+        plt.text(*coords, txt, ha="center", va="center", color="white")
+
+    for i in range(len(best_sol)):
+        color = colors[i]
+        for j in range(len(best_sol[i]) - 1):
+            plt.annotate(
+                "", xytext=dataset["data"][best_sol[i][j]], xy=dataset["data"][best_sol[i][j + 1]],
+                arrowprops=dict(arrowstyle="->,head_length=1,head_width=0.5", color=color)
+            )
+
+    # Template
+    # plt.annotate(
+    #     "", xytext=json_file["data"][0], xy=json_file["data"][1],
+    #     arrowprops=dict(arrowstyle="->", color="red")
+    # )
+
+    plt.show()
